@@ -42,6 +42,14 @@ module.exports = function(app, passport) {
         req.logout();
         res.redirect('/');
     });
+    app.get('/connect/local', function(req, res) {
+            res.render('connect-local.ejs', { message: req.flash('loginMessage') });
+        });
+        app.post('/connect/local', passport.authenticate('local-signup', {
+            successRedirect : '/profile', // redirect to the secure profile section
+            failureRedirect : '/connect/local', // redirect back to the signup page if there is an error
+            failureFlash : true // allow flash messages
+        }));
 
     // facebook routes
     // twitter routes
@@ -61,6 +69,42 @@ module.exports = function(app, passport) {
                     failureRedirect : '/'
             }));
 
+            // local -----------------------------------
+          app.get('/unlink/local', function(req, res) {
+              var user            = req.user;
+              user.local.email    = undefined;
+              user.local.password = undefined;
+              user.save(function(err) {
+                  res.redirect('/profile');
+              });
+          });
+
+          // facebook -------------------------------
+          app.get('/unlink/facebook', function(req, res) {
+              var user            = req.user;
+              user.facebook.token = undefined;
+              user.save(function(err) {
+                  res.redirect('/profile');
+              });
+          });
+
+          // twitter --------------------------------
+          app.get('/unlink/twitter', function(req, res) {
+              var user           = req.user;
+              user.twitter.token = undefined;
+              user.save(function(err) {
+                 res.redirect('/profile');
+              });
+          });
+
+          // google ---------------------------------
+          app.get('/unlink/google', function(req, res) {
+              var user          = req.user;
+              user.google.token = undefined;
+              user.save(function(err) {
+                 res.redirect('/profile');
+              });
+          });
 };
 
 // route middleware to make sure a user is logged in
